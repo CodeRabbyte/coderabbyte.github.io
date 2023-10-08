@@ -1,0 +1,54 @@
+<div class="blog">
+    <h2>Start Page</h2>
+    
+    <div class="slideshow-container">
+        <div class="mySlides fade">
+          <img src="images/startpagemockup.webp" style="width:100%">
+        </div>
+
+        <div class="mySlides fade">
+            <img src="images/startpage/p1.webp" style="width:100%">
+          </div>
+        
+        <a class="prev" onclick="plusSlides(-1)">❮</a>
+        <a class="next" onclick="plusSlides(1)">❯</a>
+        
+        </div>
+        <br>
+        
+        <div style="text-align:center">
+          <span class="dot thumb" onclick="currentSlide(1)"><img src="images/startpagemockup.webp"></span>
+          <span class="dot thumb" onclick="currentSlide(2)"><img src="images/startpage/p1.webp"></span>
+        </div>
+    </div>
+
+    <p>Dockerized responsive custom start page web interface solution interacting with libvirt's API to 
+        allow for quick and easy access to common virtual machines' functionality along side shortcuts for 
+        docker containers.  Realtime updates supported with websockets.  Constructed with Flask as the backend
+        that renders out a static page, from a json file, with interactive elements controlled via Javascript.
+    </p>
+    <div class="tech-stack">
+        <b>Tools and Technologies: </b>
+        <br>
+        <span class="min-info">
+            <div class="tech-box">Libvirt</div>
+            <div class="tech-box">Python 3</div>
+            <div class="tech-box">Flask</div>
+            <div class="tech-box">Javascript</div>
+            <div class="tech-box">HTML</div>
+            <div class="tech-box">CSS</div>
+            <div class="tech-box">Docker</div>
+            <div class="tech-box">SSH</div>
+        </span>
+    </div>
+    <br>
+    <div class="btn-container">
+        <a href="StartPageDemo/demo.html" target="_blank">
+            <div class="btn-text">Demo Page &gt;&gt;</div>
+        </a>
+    </div>
+    <script>
+        slideIndex = 1;
+        showSlides(slideIndex);
+    </script>
+</div>
