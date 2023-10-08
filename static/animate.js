@@ -1,4 +1,4 @@
-    /*Thanks*/
+    /*Acknowledgement*/
     /*https://stackoverflow.com/questions/27462306/css3-animate-elements-if-visible-in-viewport-page-scroll*/
     const inViewport = (entries, observer) => {
         entries.forEach(entry => {

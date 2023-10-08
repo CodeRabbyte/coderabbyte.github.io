@@ -13,18 +13,37 @@
 
         <!-- Google Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700,700i|Raleway:300,400,500,700,800|Montserrat:300,400,700" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100&display=swap" rel="stylesheet">
 
         <!-- Libraries CSS Files -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
         <!-- Main Stylesheet File -->
         <link href="static/style.css" rel="stylesheet" type="text/css" />
+        <link href="static/modal.css" rel="stylesheet" type="text/css" />
+        <link href="static/slideshow.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
+        <div id="modal-container">
+            <div id="modal-bg" class="modal-background">
+                <div class="modal">
+                    <div class="modal-scroll">
+                        <div class="btn-container"  style="justify-content: left;">
+                            <a href="javascript:void(0);" id="modal-return" class="button">
+                                <div class="btn-text">&lt;&lt; Return</div>
+                            </a>
+                        </div>
+                        <div id="modal-data"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!--<video autoplay muted loop id="backgroundvideo" style="opacity: 1;">
             <source src="images/bg_ani.mov" type="video/mp4">
         </video>-->
+        <div class="home">
+
         <div class="sidebar-bg-img" style="z-index: -11">
             <img src="images/space-bg.webp">
         </div>
@@ -38,8 +57,12 @@
                 <div class="text">
                     Christopher Lee
                     <div class="sub-text">
-                    <i class="fas fa-briefcase icon fa-sm"></i> Computer Science
-                    <br>
+                    <div style="font-size: 17px; line-height: 20px;"><i class="fas fa-school icon fa-sm"></i> Illinois Institute of Technology 
+                        <div style="font-size: 13px; font-family: 'Roboto Mono'; padding-left: 25px;">B.S. Computer Science (2023)</div>
+                    </div>
+                    <div style="font-size: 17px; line-height: 20px;"><i class="fas fa-school icon fa-sm"></i> University of Hawai'i at Manoa
+                        <div style="font-size: 13px; font-family: 'Roboto Mono'; padding-left: 25px;">M.S. Computer Science (pursuing)</div>
+                    </div>
                     <br>
                     <i class="fas fa-envelope icon fa-sm"></i> chrisjialee@gmail.com
                     <br>
@@ -67,8 +90,8 @@
                     <!--<div class="text-header">CAREER.</div>
                     <div class="divider"></div>
                     <br>-->
-                    <div class="text-header">PROJECTS.</div>
-                    <div class="divider"></div>
+                    <h1>PROJECTS.</h1>
+                    <hr></hr>
                     <br>
                     <div id="" class="col-md-max">
                         <div class="panel">
@@ -79,12 +102,8 @@
                                 </div>
                                 <div class="sub-box">
                                     <div class="summary">
-                                        <b>Game Development</b>
-                                        <br>
-                                        <br>
-                                        Fast pace mecha shooter with lockon aim assist and fluid procedurally generated movements.  Featuring customizable mechas in terms of color, accessories, limb variants, and armaments.  Seamless multiplayer sessions up to four player via port connections, steam, or discord integration.  Development on indefinately on pause.
-                                        <br>
-                                        <br>
+                                        <h2>🎮 Game Development</h2>
+                                        <p>Fast pace mecha shooter with lockon aim assist and fluid procedurally generated movements. Featuring customizable mechas in terms of color, accessories, limb variants, and armaments. Seamless multiplayer sessions up to four player via port connections, steam, or discord integration. Development on indefinately on pause.</p>
                                         <b>Tools and Technologies: </b>
                                         <br>
                                         <span class="min-info">
@@ -99,9 +118,11 @@
                                         </span>
                                         <br>
                                         <br>
-                                        <a href="https://youtu.be/kXIQQJcNW3w" target="_blank">
-                                            <div class="btn-text">Demo Video &gt;&gt;</div>
-                                        </a>
+                                        <div class="btn-container">
+                                            <a href="javascript:load_blog('blogs/gamedev.html');" draggable="false" id="five" class="button" style="text-align: center;">
+                                                <div class="btn-text">Learn More &gt;&gt;</div>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -113,12 +134,8 @@
                             <div class="highlight-box">
                                 <div class="sub-box  reverse">
                                     <div class="summary">
-                                        <b>Home Lab</b>
-                                        <br>
-                                        <br>
-                                        Hobbiest homelab custered setup utilizating qemu/kvm virtualization thereby enabling a safe test bed for industry technologies, custom solutions, and experimentation.  
-                                        <br>
-                                        <br>
+                                        <h2>🖧 Home Lab</h2>
+                                        <p>Hobbiest homelab custered setup utilizating qemu/kvm virtualization thereby enabling a safe test bed for industry technologies, custom solutions, and experimentation.</p>
                                         <b>Tools and Technologies: </b>
                                         <br>
                                         <span class="min-info">
@@ -140,9 +157,11 @@
                                         </span>
                                         <br>
                                         <br>
-                                        <a href="http://www.linkedin.com/in/chrisjialee" target="_blank">
-                                            <div class="btn-text">Learn More &gt;&gt;</div>
-                                        </a>
+                                        <div class="btn-container">
+                                            <a href="javascript:load_blog('blogs/homelab.html');" draggable="false" id="five" class="button" style="text-align: center;">
+                                                <div class="btn-text">Learn More &gt;&gt;</div>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="sub-box reverse">
@@ -162,12 +181,8 @@
                                 </div>
                                 <div class="sub-box">
                                     <div class="summary">
-                                        <b>Start Page</b>
-                                        <br>
-                                        <br>
-                                        Dockerized responsive custom start page web interface solution interacting with libvirt's API to allow for quick and easy access to common virtual machines' functionality along side shortcuts for docker containers.
-                                        <br>
-                                        <br>
+                                        <h2>🖥️ Start Page</h2>
+                                        <p>Dockerized responsive custom start page web interface solution interacting with libvirt's API to allow for quick and easy access to common virtual machines' functionality along side shortcuts for docker containers.</p>
                                         <b>Tools and Technologies: </b>
                                         <br>
                                         <span class="min-info">
@@ -182,9 +197,11 @@
                                         </span>
                                         <br>
                                         <br>
-                                        <a href="http://www.linkedin.com/in/chrisjialee" target="_blank">
-                                            <div class="btn-text">Learn More &gt;&gt;</div>
-                                        </a>
+                                        <div class="btn-container">
+                                            <a href="http://www.linkedin.com/in/chrisjialee" target="_blank">
+                                                <div class="btn-text">Learn More &gt;&gt;</div>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -196,12 +213,8 @@
                             <div class="highlight-box">
                                 <div class="sub-box reverse">
                                     <div class="summary">
-                                        <b>Machine Learning Labeled DataSet Generator</b>
-                                        <br>
-                                        <br>
-                                        Utilizing 3D models obtained with lidar or photogrammetry, easily generate pixel accurate labeled dataset in various photorealistic conditions.  Parameters include rotation, zoom, lighting, background environment, output resolution, and label type.
-                                        <br>
-                                        <br>
+                                        <h2>🧠 Machine Learning Labeled DataSet Generator</h2>
+                                        <p>Utilizing 3D models obtained with lidar or photogrammetry, easily generate pixel accurate labeled dataset in various photorealistic conditions.  Parameters include rotation, zoom, lighting, background environment, output resolution, and label type.</p>
                                         <b>Tools and Technologies: </b>
                                         <br>
                                         <span class="min-info">
@@ -215,12 +228,14 @@
                                         </span>
                                         <br>
                                         <br>
-                                        <a href="https://github.com/clee93/3D-Model-to-AI-Training-Data" target="_blank">
-                                            <div class="btn-text">Github: Generator Package &gt;&gt;</div>
-                                        </a>
-                                        <a href="https://github.com/clee93/Yolo-Detection-In-Unity-Environment" target="_blank">
-                                            <div class="btn-text">Github: Trained Weights &gt;&gt;</div>
-                                        </a>
+                                        <div class="btn-container">
+                                            <a href="https://github.com/clee93/3D-Model-to-AI-Training-Data" target="_blank">
+                                                <div class="btn-text">Github: Generator Package &gt;&gt;</div>
+                                            </a>
+                                            <a href="https://github.com/clee93/Yolo-Detection-In-Unity-Environment" target="_blank">
+                                                <div class="btn-text">Github: Trained Weights &gt;&gt;</div>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="sub-box reverse">
@@ -241,12 +256,8 @@
                                 </div>
                                 <div class="sub-box">
                                     <div class="summary">
-                                        <b>Windows Handheld Gaming Device (2016)</b>
-                                        <br>
-                                        <br>
-                                        Prototype portable windows gaming device with full x86 support, HID controls via arduino, and touchscreen support.  Preceding the Steamdeck and most GPD devices.  Limited gaming performance due to hardware limitations.
-                                        <br>
-                                        <br>
+                                        <h2>🕹️ Windows Handheld Gaming Device (2016)</h2>
+                                        <p>Prototype portable windows gaming device with full x86 support, HID controls via arduino, and touchscreen support.  Preceding the Steamdeck and most GPD devices.  Limited gaming performance due to hardware limitations.</p>
                                         <b>Tools and Technologies: </b>
                                         <br>
                                         <span class="min-info">
@@ -257,9 +268,11 @@
                                         </span>
                                         <br>
                                         <br>
-                                        <a href="http://www.linkedin.com/in/chrisjialee" target="_blank">
-                                            <div class="btn-text">Learn More &gt;&gt;</div>
-                                        </a>
+                                        <div class="btn-container">
+                                            <a href="http://www.linkedin.com/in/chrisjialee" target="_blank">
+                                                <div class="btn-text">Learn More &gt;&gt;</div>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -271,12 +284,8 @@
                             <div class="highlight-box">
                                 <div class="sub-box  reverse">
                                     <div class="summary">
-                                        <b>StreamDeck VM Manager</b>
-                                        <br>
-                                        <br>
-                                        Simple Virsh integration with StreamDeck via python for easy managment of virtual machine and server clusters.
-                                        <br>
-                                        <br>
+                                        <h2>📺 StreamDeck VM Manager</h2>
+                                        <p>Simple Virsh integration with StreamDeck via python for easy managment of virtual machine and server clusters.</p>
                                         <b>Tools and Technologies: </b>
                                         <br>
                                         <span class="min-info">
@@ -286,9 +295,11 @@
                                         </span>
                                         <br>
                                         <br>
-                                        <a href="https://github.com/CodeRabbyte/Virtual-Machine-Manager-StreamDeck" target="_blank">
-                                            <div class="btn-text">View on Github &gt;&gt;</div>
-                                        </a>
+                                        <div class="btn-container">
+                                            <a href="https://github.com/CodeRabbyte/Virtual-Machine-Manager-StreamDeck" target="_blank">
+                                                <div class="btn-text">View on Github &gt;&gt;</div>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="sub-box reverse">
@@ -310,12 +321,8 @@
                                 </div>
                                 <div class="sub-box">
                                     <div class="summary">
-                                        <b>Procedural Galaxy Generator</b>
-                                        <br>
-                                        <br>
-                                        Multi-threaded procedurally generated spiral galaxies written in Rust!
-                                        <br>
-                                        <br>
+                                        <h2>🌌 Procedural Galaxy Generator</h2>
+                                        <p>Multi-threaded procedurally generated spiral galaxies written in Rust!</p>
                                         <b>Tools and Technologies: </b>
                                         <br>
                                         <span class="min-info">
@@ -323,9 +330,11 @@
                                         </span>
                                         <br>
                                         <br>
-                                        <a href="https://github.com/CodeRabbyte/Procedural-Galaxy-Generator" target="_blank">
-                                            <div class="btn-text">View on Github &gt;&gt;</div>
-                                        </a>
+                                        <div class="btn-container">
+                                            <a href="https://github.com/CodeRabbyte/Procedural-Galaxy-Generator" target="_blank">
+                                                <div class="btn-text">View on Github &gt;&gt;</div>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -337,12 +346,8 @@
                             <div class="highlight-box">
                                 <div class="sub-box  reverse">
                                     <div class="summary">
-                                        <b>Voxel World with Celluar Automata</b>
-                                        <br>
-                                        <br>
-                                        Work in progress.  Procederally generated voxel world featuring multi-threaded support for both greedy and fast mesh generation. Voxel world also supports basic celluar automata (falling sands).
-                                        <br>
-                                        <br>
+                                        <h2>🧱 Voxel World with Celluar Automata</h2>
+                                        <p>Work in progress.  Procederally generated voxel world featuring multi-threaded support for both greedy and fast mesh generation. Voxel world also supports basic celluar automata (falling sands).</p>
                                         <b>Tools and Technologies: </b>
                                         <br>
                                         <span class="min-info">
@@ -351,9 +356,11 @@
                                         </span>
                                         <br>
                                         <br>
-                                        <a href="https://github.com/CodeRabbyte/Cellular-Automata-in-Voxel-World" target="_blank">
-                                            <div class="btn-text">View on Github &gt;&gt;</div>
-                                        </a>
+                                        <div class="btn-container">
+                                            <a href="https://github.com/CodeRabbyte/Cellular-Automata-in-Voxel-World" target="_blank">
+                                                <div class="btn-text">View on Github &gt;&gt;</div>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="sub-box reverse">
@@ -373,9 +380,14 @@
                         <p>
                             View more projects on my:
                             <br>
-                            <a href="https://github.com/CodeRabbyte" style="text-decoration:underline;" target="_blank">Personal Github >></a>
-                            <br>
-                            <a href="https://github.com/clee93" style="text-decoration:underline;" target="_blank">Student Github >></a>
+                            <div class="btn-container">
+                                <a href="https://github.com/CodeRabbyte" target="_blank">
+                                    <div class="btn-text">Personal Github &gt;&gt;</div>
+                                </a>
+                                <a href="https://github.com/clee93" target="_blank">
+                                    <div class="btn-text">Student Github &gt;&gt;</div>
+                                </a>
+                            </div>
                         </p>
                     </div>
                     <br>
@@ -386,9 +398,9 @@
                     <div id="projects">
                     </div>-->
                     
-                    <div class="text-header">EDUCATION.</div>
-                    <div class="divider"></div>
-                        <div class="timeline-bar">
+                    <!--<h1>EDUCATION.</h1>
+                    <hr></hr>
+                    <div class="timeline-bar">
                         <div class="timeline">
                             <div class="tl-container tl-left">
                                 <div class="tl-content">
@@ -411,7 +423,7 @@
                                 </div>
                             </div>
                         </div> 
-                    </div> 
+                    </div> -->
                     <!--<div class="text-header">TECHNOLOGIES.</div>
                     <p>C</p>
                     <div class="divider"></div>-->
@@ -422,8 +434,19 @@
                 </div>
             </div>
         </div>
+
+        </div>
   </body>
 </html>
 
 <!--Scripts-->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script src="static/animate.js"></script>
+<script src="static/modal.js"></script>
+<script src="static/slideshow.js"></script>
+<script>
+    function load_blog(blog) {
+        $("#modal-data").load(blog);
+    }
+    //document.getElementById("modal-data").innerHTML='<object type="text/html" data="blogs/gamedev.html" ></object>';
+</script>

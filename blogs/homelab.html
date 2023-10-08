@@ -1,0 +1,60 @@
+<div class="blog">
+    <h2>HomeLab</h2>
+    
+    <div class="slideshow-container">
+        <div class="mySlides fade">
+          <img src="images/mypc.webp" style="width:100%">
+        </div>
+
+        <div class="mySlides fade">
+            <img src="images/homelab/cli.webp" style="width:100%">
+          </div>
+        
+        <a class="prev" onclick="plusSlides(-1)">❮</a>
+        <a class="next" onclick="plusSlides(1)">❯</a>
+        
+        </div>
+        <br>
+        
+        <div style="text-align:center">
+          <span class="dot thumb" onclick="currentSlide(1)"><img src="images/mypc.webp"></span>
+          <span class="dot thumb" onclick="currentSlide(2)"><img src="images/homelab/cli.webp"></span>
+        </div>
+    </div>
+
+    <p>Ever evolving homelab environment utilizating qemu/kvm virtualization thereby enabling a safe test bed for industry technologies, custom solutions, and experimentation.
+        The server fundamentally focuses upon virtualization through qemu and GPU acceleration is achieve via VFIO.
+        Thereofore, all services such as routers, storage, and build environment are virtualized.  The chief choice of
+        router is OpnSense where access to the server is gained via Wireguard.  Data redunancy is ensured through nightly
+        synchronizations betwen servers, as such all servers contain similar environments.  Due to the limiations of consumer hardware,
+        such as the lack of a BMC, a botched relay mechanism controlled by an android insures reboot after 10 minutes of power restoration.
+        Power surages an mini-outages are prevented via an UPS.  Additional container-based virtualization is achieved with 
+        Docker which is resposible for hosting Minecraft Servers, run AI models, provide a webbased services such as OnlyOffice and Notepad, and more.
+        Easy access to most common configuration modifications and simple automated features are managed with an in-house cli solution.
+    </p>
+    <div class="tech-stack">
+        <b>Tools and Technologies: </b>
+        <br>
+        <span class="min-info">
+            <div class="tech-box">QEMU/KVM</div>
+            <div class="tech-box">Libvirt</div>
+            <div class="tech-box">VFIO</div>
+            <div class="tech-box">SSH</div>
+            <div class="tech-box">OpnSense</div>
+            <div class="tech-box">Wireguard</div>
+            <div class="tech-box">TrueNAS</div>
+            <div class="tech-box">NFS</div>
+            <div class="tech-box">SMB</div>
+            <div class="tech-box">Windows</div>
+            <div class="tech-box">Linux [Manjaro, Ubuntu, Kali]</div>
+            <div class="tech-box">Docker</div>
+            <div class="tech-box">Portainer</div>
+            <div class="tech-box">CodeServer</div>
+            <div class="tech-box">more...</div>
+        </span>
+    </div>
+    <script>
+        slideIndex = 1;
+        showSlides(slideIndex);
+    </script>
+</div>
