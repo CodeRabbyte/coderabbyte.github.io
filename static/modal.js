@@ -6,13 +6,13 @@ $('.button').click(function(){
 })
 
 $('#modal-return').click(function(){
-  $('#modal-container').addClass('out');
+  $('#modal-container').addClass('five out');
   $('body').removeClass('modal-active');
   $("#modal-data").empty();
 });
 
 $('.modal-bg').click(function(){
-  $('.modal-bg').addClass('out');
+  $('.modal-bg').addClass('five out');
   $('body').removeClass('modal-active');
   $("#modal-data").empty();
 });
