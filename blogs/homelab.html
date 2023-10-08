@@ -27,7 +27,7 @@
         Thereofore, all services such as routers, storage, and build environment are virtualized.  The chief choice of
         router is OpnSense where access to the server is gained via Wireguard.  Data redunancy is ensured through nightly
         synchronizations betwen servers, as such all servers contain similar environments.  Due to the limiations of consumer hardware,
-        such as the lack of a BMC, a botched relay mechanism controlled by an android insures reboot after 10 minutes of power restoration.
+        such as the lack of a BMC, a botched relay mechanism controlled by an android was emploted to ensure reboot after 10 minutes of power restoration.
         Power surages an mini-outages are prevented via an UPS.  Additional container-based virtualization is achieved with 
         Docker which is resposible for hosting Minecraft Servers, run AI models, provide a webbased services such as OnlyOffice and Notepad, and more.
         Easy access to most common configuration modifications and simple automated features are managed with an in-house cli solution.
