@@ -450,7 +450,7 @@ a:link, a:visited {
     grid-template-areas:
     'header vms'
     'apps vms';
-    grid-template-rows: 125px calc(100% - 125px);
+    grid-template-rows: 125px calc( 100% - 125px );
     grid-template-columns: 50%;
     width: auto;
     height: 100%;

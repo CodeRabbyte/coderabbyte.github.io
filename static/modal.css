@@ -207,7 +207,11 @@ html.modal-active, body.modal-active {
     position: relative;
     /*width: 80%;*/
     margin: auto;
-    overflow-y: auto;
+    overflow-y: scroll;
+}
+
+.modal {
+
 }
 
 .modal-scroll {
@@ -246,6 +250,7 @@ html.modal-active, body.modal-active {
         margin: 0px;
         transition: all 0.5s;
         min-height: 100%;
+        border-radius: 0px;
     }
 }
 
@@ -287,7 +292,7 @@ html.modal-active, body.modal-active {
     left: 0;
     height: 100%;
     width: 100%;
-    border-radius: 3px;
+    border-radius: 10px;
 }
 #modal-container .modal-background .modal .modal-svg rect {
     stroke: #fff;
