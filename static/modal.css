@@ -54,7 +54,6 @@ html.modal-active, body.modal-active {
 }
 #modal-container .modal-background .modal {
     font-family: monospace;
- 
     font-weight: 300;
     margin: auto;
     width: 1300px;
@@ -68,6 +67,12 @@ html.modal-active, body.modal-active {
     padding: 50px;
     border-radius: 10px;
     min-height: 0%;
+    transition: all 1s;
+}
+
+.modal-bottom-padding {
+    height: 50px; 
+    width: 100%;
     transition: all 1s;
 }
 
@@ -88,6 +93,10 @@ html.modal-active, body.modal-active {
         min-height: 100%;
         border-radius: 0px;
         transition: all 0.5s;
+    }
+
+    .modal-bottom-padding {
+        height: 0px;
     }
 }
 
