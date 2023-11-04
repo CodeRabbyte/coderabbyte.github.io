@@ -1,3 +1,7 @@
+* {
+  scrollbar-width: none;
+}
+
 /* width */
 ::-webkit-scrollbar {
   display: none;
@@ -157,7 +161,7 @@ a:link, a:visited {
     justify-content: space-around;
 
     /*max-width: 375px;*/
-    margin: auto;
+    margin: 5px;
     padding: 10px;
   }
 
@@ -388,9 +392,10 @@ a:link, a:visited {
   /*top: -35%;*/
   height: auto;
   /*left: 7.5%;*/
-  transform: translate(1%, -200%);
-
-  position: relative;
+  /*transform: translate(1%, -200%);*/
+  bottom: 0;
+  padding: 0px 10px;
+  position: absolute;
   /*border: 3px solid green;*/
   z-index: 11;
 }
@@ -415,6 +420,7 @@ a:link, a:visited {
   overflow: none;
   align-content: center;
   justify-content: center;
+  padding: 0px;
 }
 
 .column-apps, .column-vms, .column-console, .column-title {
@@ -425,7 +431,7 @@ a:link, a:visited {
   background-color: rgba(117, 117, 117, 0.171);
   border: 2px solid rgb(245, 245, 245);
   backdrop-filter: blur(10px);
-  margin: 10px;
+  margin: 5px;
 }
 
 .column-apps, .column-vms, .column-title {
@@ -450,12 +456,12 @@ a:link, a:visited {
     grid-template-areas:
     'header vms'
     'apps vms';
-    grid-template-rows: 125px calc( 100% - 125px );
-    grid-template-columns: 50%;
+    grid-template-rows: 125px calc(100% - 125px);
+    grid-template-columns: 50% 50%;
     width: auto;
-    height: 100%;
+    height: calc(100% - 10px);
     overflow: none;
-
+    padding: 5px;
     /*margin: 10px;*/
   }
   .column-apps, .column-vms {
@@ -482,7 +488,7 @@ a:link, a:visited {
     width: auto;
     height: auto; /*calc(100% - 75px)*/
     overflow: scroll;
-
+    padding: 5px;
     /*margin: 10px;*/
   }
   .column-apps, .column-vms, .column-title {
