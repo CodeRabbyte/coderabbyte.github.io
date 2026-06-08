@@ -1,347 +1,2296 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Start Page Demo</title>
-    <link rel="stylesheet" href="static/style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Astray Startpage Demo</title>
     <style>
+      :root {
+        --bg: hsl(0 0% 3.9%);
+        --fg: hsl(0 0% 98%);
+        --muted-fg: hsl(0 0% 63.9%);
+        --border: rgba(255, 255, 255, 0.15);
+        --tint: hsla(0, 0%, 0%, 0.25);
+        --online: hsl(100 100% 50%);
+        --offline: hsl(350 100% 50%);
+        --warn: hsl(50 100% 50%);
+        --unknown: hsl(0 0% 50%);
+        --panel-bg: rgba(156, 163, 175, 0.2);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        scrollbar-width: none;
+      }
+      ::-webkit-scrollbar {
+        display: none;
+      }
+      .scroll {
+        scrollbar-width: thin;
+        scrollbar-color: rgb(97, 97, 97) transparent;
+      }
+      .scroll::-webkit-scrollbar {
+        display: block;
+        width: 10px;
+      }
+      .scroll::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .scroll::-webkit-scrollbar-thumb {
+        background: rgb(97, 97, 97);
+        border-radius: 0;
+      }
+      .scroll::-webkit-scrollbar-thumb:hover {
+        background: rgb(48, 48, 48);
+      }
+
+      html,
       body {
-        background-image: url('static/x99-bg.jpeg');
+        height: 100%;
+        font-family: "Courier", monospace;
+        background: #0e0e0e;
+        color: var(--fg);
+        font-size: 14px;
+      }
+
+      /* ── Grid ── */
+      .grid-container {
+        display: grid;
+        grid-template-areas:
+          "servers servers vms vms vms header"
+          "apps    apps    vms vms vms header";
+        grid-template-rows: 135px calc(80vh - 165px);
+        grid-template-columns: 600px 200px 100px 100px 200px 150px;
+        height: 100vh;
+        align-content: center;
+        justify-content: center;
+        background-image: url("static/x99-bg.jpeg");
+        background-size: cover;
+        background-position: center;
+      }
+      @media (max-width: 1350px) {
+        .grid-container {
+          grid-template-areas: "header vms" "servers vms" "apps vms";
+          grid-template-rows: 125px 135px calc(100vh - 270px);
+          grid-template-columns: 50% 50%;
+          height: calc(100vh - 10px);
+          padding: 5px;
+        }
+      }
+      @media (max-width: 800px) {
+        .grid-container {
+          grid-template-areas: "header" "servers" "apps" "vms";
+          grid-template-rows: 125px 135px auto auto;
+          grid-template-columns: 100%;
+          height: auto;
+          padding: 5px;
+        }
+      }
+
+      /* ── Panel (Container) ── */
+      .panel {
+        overflow: hidden;
+        background: var(--panel-bg);
+        border: 1px solid var(--border);
+        backdrop-filter: blur(12px);
+        margin: 4px;
+      }
+      .panel-header {
+        grid-area: header;
+      }
+      .panel-servers {
+        grid-area: servers;
+      }
+      .panel-apps {
+        grid-area: apps;
+      }
+      .panel-vms {
+        grid-area: vms;
+      }
+
+      /* ── Header ── */
+      .header-wrap {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      .header-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+      }
+      .header-acpi {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: var(--tint);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid var(--border);
+        padding: 10px;
+        font-size: 14px;
+        text-shadow: 0 0 4px rgba(0, 0, 0, 1);
+      }
+      .header-acpi-sep {
+        display: block;
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* ── Servers ── */
+      .servers-scroll {
+        display: flex;
+        flex-direction: row;
+        height: 100%;
+        overflow-x: auto;
+        align-items: flex-start;
+      }
+      .cluster {
+        display: inline-flex;
+        flex-direction: column;
+        height: 119px;
+        margin: 3px;
+        padding: 5px;
+        width: auto;
+      }
+      .cluster-name {
+        font-size: 12px;
+        font-weight: bold;
+        color: var(--muted-fg);
+        padding-left: 4px;
+        padding-bottom: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 70px;
+      }
+      .cluster-nodes {
+        display: flex;
+        flex-direction: row;
+      }
+      .node {
+        position: relative;
+        width: 50px;
+        height: 67px;
+        margin: 10px;
+        text-decoration: none;
+        color: var(--fg);
+        transition: transform 0.15s;
+        cursor: pointer;
+        display: block;
+      }
+      .node:hover {
+        transform: scale(1.05);
+      }
+      .node-indicator {
+        position: absolute;
+        width: 7px;
+        height: 2px;
+        z-index: 1;
+        top: -5px;
+        left: -5px;
+      }
+      .node-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        filter: drop-shadow(0 0 7px rgba(0, 0, 0, 0.5));
+        position: relative;
+        top: 0;
+        overflow: hidden;
+      }
+      .node-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+      .node p {
+        font-size: 13px;
+        font-weight: bold;
+        text-align: center;
+        width: 100%;
+        word-break: break-word;
+        text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+        margin-top: 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .node-current .node-icon {
+        outline: 2px solid rgba(255, 255, 255, 0.6);
+        outline-offset: 2px;
+      }
+      .v-sep {
+        width: 1px;
+        background: var(--border);
+        margin: 8px 0;
+        align-self: stretch;
+      }
+
+      /* ── Tabs ── */
+      .tabs {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+      }
+      .tab-list {
+        display: flex;
+        flex-direction: row;
+        gap: 2px;
+        padding: 4px 4px 0;
+      }
+      .tab-btn {
+        padding: 4px 12px;
+        border: none;
+        border-radius: 4px 4px 0 0;
+        cursor: pointer;
+        font-size: 12px;
+        font-family: inherit;
+        font-weight: 600;
+        background: transparent;
+        color: var(--muted-fg);
+        transition: all 0.15s;
+      }
+      .tab-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--fg);
+      }
+      .tab-btn.active {
+        background: rgba(255, 255, 255, 0.15);
+        color: var(--fg);
+      }
+      .tab-sep {
+        height: 1px;
+        background: var(--border);
+        margin: 0 4px;
+      }
+      .tab-pane {
+        display: none;
+        flex: 1;
+        overflow: hidden;
+        height: calc(100% - 33px);
+      }
+      .tab-pane.active {
+        display: flex;
+        flex-direction: column;
+      }
+      .scroll {
+        overflow-y: auto;
+        height: 100%;
+        width: 100%;
+      }
+
+      /* ── Apps ── */
+      .apps-grid {
+        list-style: none;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        padding: 10px 16px;
+        margin-top: -30px;
+      }
+      .app-wrap {
+        margin-top: 40px;
+      }
+      .app-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+      .app-inner {
+        position: relative;
+        width: 75px;
+        height: 100px;
+        margin: 10px;
+        transition: transform 0.15s;
+        cursor: pointer;
+      }
+      .app-inner:hover {
+        transform: scale(1.05);
+      }
+      .app-dot {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        z-index: 1;
+        top: -5px;
+        left: -5px;
+      }
+      .app-icon {
+        width: 75px;
+        height: 75px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        filter: drop-shadow(0 0 7px rgba(0, 0, 0, 0.5));
+        overflow: hidden;
+        background: none;
+      }
+      .app-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 12px;
+      }
+      .app-name {
+        font-size: 12px;
+        font-weight: bold;
+        text-align: center;
+        width: 125%;
+        position: relative;
+        left: -12.5%;
+        word-break: break-word;
+        text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+        padding: 0 2px;
+        margin-top: 4px;
+      }
+
+      /* ── VMs ── */
+      .vm-list {
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .vm-card {
+        overflow: hidden;
+        cursor: pointer;
+        background: var(--bg);
+      }
+      .vm-state-bar {
+        height: 2px;
+      }
+      .vm-top {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        transition: height 0.3s ease-in-out;
+      }
+      .vm-top.opened {
+        height: 125px;
+      }
+      .vm-preview {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 70px;
+      }
+      .vm-name {
+        font-weight: bold;
+        font-size: 20px;
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        right: 16px;
+        text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+        pointer-events: none;
+      }
+      .vm-controls {
+        background: rgb(226, 226, 226);
+        width: calc(100% - 16px);
+        margin: 0 8px;
+        height: 75px;
+        overflow: hidden;
+        transition: height 0.3s ease-in-out;
+      }
+      .vm-controls.closed {
+        height: 0;
+      }
+      .vm-ctrl {
+        float: left;
+        width: 25%;
+        height: 100%;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.15s;
+        color: #333;
+        font-size: 20px;
+      }
+      .vm-ctrl:hover {
+        transform: scale(1.1);
+      }
+      .vm-ctrl img {
+        max-width: 75%;
+        max-height: 75%;
+        position: relative;
+        top: 50%;
+        transform: translate(0%, -50%);
+      }
+
+      /* ── Docker ── */
+      .docker-stack {
+        background: var(--bg);
+        margin-top: 5px;
+        padding: 10px;
+      }
+      .docker-stack-name {
+        font-weight: bold;
+        color: var(--muted-fg);
+        margin-bottom: 4px;
+      }
+      .docker-container {
+        display: grid;
+        grid-template-columns: calc(100% - 40px) 40px;
+        background: #292929;
+        padding: 10px;
+        margin: 5px 0;
+        align-items: center;
+      }
+      .docker-container-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .docker-ctrl {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        transition: transform 0.15s;
+        padding: 5px;
+        font-family: inherit;
+      }
+      .docker-ctrl[title="Power off"] {
+        color: var(--offline);
+      }
+      .docker-ctrl[title="Start"] {
+        color: var(--online);
+      }
+      .docker-ctrl:hover {
+        transform: scale(1.25);
+      }
+
+      /* State colors */
+      .bg-online {
+        background: var(--online);
+      }
+      .bg-offline {
+        background: var(--offline);
+      }
+      .bg-warn {
+        background: var(--warn);
+      }
+      .bg-unknown {
+        background: var(--unknown);
+      }
+
+      /* Settings pane */
+      .settings-pane {
+        padding: 16px;
+      }
+      .settings-btn {
+        padding: 8px 16px;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        color: white;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 14px;
+      }
+      .settings-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
       }
     </style>
   </head>
   <body>
-    <div class="column-container">
-      <div class="column-title">
-        <div class="image-box-title">
-          <img src="static/x99-bg.jpeg" onerror="this.onerror=null;this.src='static/default.png';">
-          <p></p>
+    <div class="grid-container">
+      <!-- ══ HEADER ══ -->
+      <div class="panel panel-header">
+        <div class="header-wrap">
+          <img
+            src="static/x99-bg.jpeg"
+            onerror="
+              this.style.background = 'linear-gradient(135deg,#1a1a2e,#0d47a1)';
+              this.style.display = 'block';
+              this.onerror = null;
+            "
+          />
+          <div class="header-acpi">
+            <span class="header-acpi-sep"></span>
+            AC Adapter: Online &nbsp;|&nbsp; Thermal Zone: 42°C &nbsp;|&nbsp;
+            Load: 0.82 0.74 0.61
+          </div>
         </div>
       </div>
-      <div class="column-apps">
-        <div class="container"><!--style="padding: 100px 0px 0px 0px;">-->
-          <ul class="flex-apps" id="table-2">
-            
-            <a href="https://libvirt.org/">
-              <li class="item" style="background:#161b1f;">
-                <img src="static/virtmanager.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>Virt Manager</p>
-              </li>
-            </a>
-            <a href="https://www.portainer.io/">
-              <li class="item" style="background:#161b1f;">
-                <img src="static/portainer.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>Portainer</p>
-              </li>
-            </a>
-            <a href="https://opnsense.org/">
-              <li class="item" style="background:#fafbfc;">
-                <img src="static/opnsense.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>OPNsense</p>  
-              </li>
-            </a>
-            <a href="https://guacamole.apache.org/">
-              <li class="item" style="background:#161b1f;">
-                <img src="static/guacamole.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>Guacamole</p>
-              </li>
-            </a>
-            <a href="https://github.com/coder/code-server">
-              <li class="item" style="background:#fafbfc;">
-                <img src="static/codeserver.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>Codeserver</p>
-              </li>
-            </a>
-            <a href="https://github.com/overleaf/overleaf">
-              <li class="item" style="background:151b1f;">
-                <img src="static/overleaf.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>Overleaf</p>
-              </li>
-            </a>
-            <a href="https://dbeaver.io/2020/04/27/cloudbeaver-1-0/">
-              <li class="item" style="background:#161b1f;">
-                <img src="static/cloudbeaver.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>CloudBeaver</p>
-              </li>
-            </a>
-            <a href="https://www.truenas.com/">
-              <li class="item" style="background:#161b1f;">
-                <img src="static/truenascore.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>TrueNASCORE</p>
-              </li>
-            </a>
-            <a href="https://filebrowser.org/">
-              <li class="item" style="background:#161b1f;">
-                <img src="static/filebrowser.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>FileBrowser</p>
-              </li>
-            </a>
-            <a href="https://syncthing.net/">
-              <li class="item" style="background:#161b1f;">
-                <img src="static/syncthing.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>Syncthing</p>
-              </li>
-            </a>
-            <a href="https://calibre-ebook.com/">
-              <li class="item" style="background:#161b1f;">
-                <img src="static/calibre.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>Calibre</p>
-              </li>
-            </a>
-            <a href="https://coderabbyte.github.io/">
-              <li class="item" style="background:#161b1f;">
-                <img src="static/notepad.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>Notepad</p>
-              </li>
-            </a>
-            <a href="https://github.com/topics/hastebin">
-              <li class="item" style="background:#123;"> 
-                <img src="static/hastebin.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>HasteBin</p>
-              </li>
-            </a>
-            <a href="https://github.com/ONLYOFFICE/CommunityServer">
-              <li class="item" style="background:#161b1f;">
-                <img src="static/onlyoffice.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>OnlyOffice</p>
-              </li>
-            </a>
-            <a href="https://www.getgrist.com/">
-              <li class="item" style="background:#CED;">
-                <img src="static/grist.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>Grist</p>
-              </li>
-            </a>
-            <a href="https://app.diagrams.net/">
-              <li class="item" style="background:#EDC;">
-                <img src="static/drawio.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>Draw.io</p>
-              </li>
-            </a>
-            <a href="https://cocalc.com/">
-              <li class="item" style="background:#FFF;">
-                <img src="static/cocalc.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>CoCalc</p>
-              </li>
-            </a>
-            <a href="https://regexr.com/">
-              <li class="item" style="background:#7AE;">
-                <img src="static/regexr.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>Regexr</p>
-              </li>
-            </a>
-            <a href="https://coderabbyte.github.io/">
-              <li class="item" style="background:#161b1f;">
-                <img src="static/configuration.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>Portfolio</p>
-              </li>
-            </a>
-            <a href="">
-              <li class="item" style="background:#161b1f;">
-                <img src="static/settings.png" onerror="this.onerror=null;this.src='static/default.png';">
-                <p>Settings</p>
-              </li>
-            </a>
-            
-          </ul>
+
+      <!-- ══ SERVERS ══ -->
+      <div class="panel panel-servers">
+        <div class="servers-scroll">
+          <div class="cluster">
+            <div class="cluster-name">LPS</div>
+            <div class="cluster-nodes">
+              <a class="node" href="#"
+                ><div class="node-indicator bg-online"></div>
+                <div class="node-icon">
+                  <img
+                    src="static/apps/gpd.png"
+                    onerror="
+                      this.onerror = null;
+                      this.src = 'static/default.png';
+                    "
+                  />
+                </div>
+                <p>LPS</p></a
+              >
+              <a class="node" href="#"
+                ><div class="node-indicator bg-offline"></div>
+                <div class="node-icon">
+                  <img
+                    src="static/apps/x99.png"
+                    onerror="
+                      this.onerror = null;
+                      this.src = 'static/default.png';
+                    "
+                  />
+                </div>
+                <p>X99</p></a
+              >
+            </div>
+          </div>
+
+          <div class="v-sep"></div>
+
+          <div class="cluster">
+            <div class="cluster-name">TRX40</div>
+            <div class="cluster-nodes">
+              <a class="node" href="#"
+                ><div class="node-indicator bg-offline"></div>
+                <div class="node-icon">
+                  <img
+                    src="static/apps/trx40.jpeg"
+                    onerror="
+                      this.onerror = null;
+                      this.src = 'static/default.png';
+                    "
+                  />
+                </div>
+                <p>TRX40</p></a
+              >
+            </div>
+          </div>
         </div>
       </div>
-      <div class="column-vms">
-          <div class="container">
-            <ul class="flex-vms" id="table-2">
-                
-              <li>
-                <div id="Android-x86-9.0" class="vm">
-                  <a class="upper_panel_btn" href="javascript:void(0);">
-                    <div class="upper_panel" style="" aria-label="closed">
-                        <div class="image-box">
-                          <img src="static/black.png" onerror="this.onerror=null;this.src='static/black.png';">
-                          <div id="Android-x86-9.0_indicator" class="offline"></div>
-                          <!--
-                          <img src="/static/images/black.png"/>
-                          <div class="offline"></div>
-                          -->
-                          <p>Android-x86-9.0</p>
-                        </div>
-                    </div>
-                  </a>
-                    <div id="Android-x86-9.0_panel">
-                      <div id="Android-x86-9.0_offline" class="lower_panel" style="">
-                        <div class="btn">
-                          <a onclick="vmCmd('Android-x86-9.0', 'run')" href="javascript:closeVMPanelByName('Android-x86-9.0');">
-                            <img class="img" src="static/start.png">
-                          </a>
-                        </div>                
-                        <div class="btn">
-                        </div>                
-                        <div class="btn">
-                        </div>
-                        <div class="btn">
-                        </div>
-                      </div>
-                    </div>
-                </div>
-              </li>
-      
-              <li>
-                <div id="Docker" class="vm">
-                  <a class="upper_panel_btn" href="javascript:void(0);">
-                    <div class="upper_panel" style="" aria-label="closed">
-                        <div class="image-box">
 
-                          <img src="static/Docker-Internal.webp" onerror="this.onerror=null;this.src='static/black.png';">
-                          <div id="Docker_indicator" class="online"></div>
-                          <!--
-                          <img src="/static/images/black.png"/>
-                          <div class="offline"></div>
-                          -->
-                          <p>Docker</p>
-                        </div>
-                    </div>
-                  </a>
-                  <div id="Docker_panel">
-                    <div id="Docker_online" class="lower_panel" style="">
-                      <div class="btn" style="width: 20%;">
-                        <a onclick="vmCmd('Docker', 'shutdown')" href="javascript:closeVMPanelByName('Docker');">
-                          <img class="img" src="static/power.png">
-                        </a>
-                      </div>               
-                      <div class="btn" style="width: 20%;">
-                        <a onclick="vmCmd('Docker', 'reboot')" href="javascript:closeVMPanelByName('Docker');">
-                          <img class="img" src="static/reboot.png">
-                        </a> 
-                      </div>                
-                      <div class="btn" style="width: 20%;">
-                        <a onclick="vmCmd('Docker', 'force shutdown')" href="javascript:closeVMPanelByName('Docker');">
-                          <img class="img" src="static/stop.png">
-                        </a>
-                      </div>
-                      <div class="btn" style="width: 20%;">
-                      <a onclick="javascript:closeVMPanelByName('Docker');" href="javascript:void(0)">
-                          <img class="img" src="static/keyboard-2.png">
-                        </a>
-                      </div>
-                      <div class="btn" style="width: 20%;">
-                        <a onclick="javascript:closeVMPanelByName('Docker');" href="javascript:void(0)">
-                          <img class="img" src="static/terminal.png">
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </li>
+      <!-- ══ APPS ══ -->
+      <div class="panel panel-apps">
+        <div class="tabs">
+          <div class="tab-list">
+            <button
+              class="tab-btn active"
+              onclick="switchTab(this, 'apps', 'home')"
+            >
+              home
+            </button>
+            <button class="tab-btn" onclick="switchTab(this, 'apps', 'rdp')">
+              rdp
+            </button>
+            <button class="tab-btn" onclick="switchTab(this, 'apps', 'media')">
+              media
+            </button>
+            <button
+              class="tab-btn"
+              onclick="switchTab(this, 'apps', 'settings')"
+            >
+              settings
+            </button>
+          </div>
+          <div class="tab-sep"></div>
 
-              <li>
-                <div id="FreeNas" class="vm">
-                  <a class="upper_panel_btn" href="javascript:void(0);">
-                    <div class="upper_panel" style="" aria-label="closed">
-                        <div class="image-box">
-                          <img src="static/black.png" onerror="this.onerror=null;this.src='static/black.png';">
-                          <div id="FreeNas_indicator" class="offline"></div>
-                          <!--
-                          <img src="/static/images/black.png"/>
-                          <div class="offline"></div>
-                          -->
-                          <p>FreeNas</p>
-                        </div>
+          <!-- ── home ── -->
+          <div class="tab-pane active scroll" id="apps-home">
+            <ul class="apps-grid">
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/virtmanager.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
                     </div>
-                  </a>
-                    <div id="FreeNas_panel">
-                      <div id="FreeNas_offline" class="lower_panel" style="">
-                        <div class="btn">
-                          <a onclick="vmCmd('FreeNas', 'run')" href="javascript:closeVMPanelByName('FreeNas');">
-                            <img class="img" src="static/start.png">
-                          </a>
-                        </div>                
-                        <div class="btn">
-                        </div>                
-                        <div class="btn">
-                        </div>
-                        <div class="btn">
-                        </div>
-                      </div>
-                    </div>
-                </div>
+                    <p class="app-name">Virt Manager (Guac)</p>
+                  </div></a
+                >
               </li>
-
-              <li>
-                <div id="OpnSense" class="vm">
-                  <a class="upper_panel_btn" href="javascript:void(0);">
-                    <div class="upper_panel" style="" aria-label="closed">
-                        <div class="image-box">
-                          <img src="static/black.png" onerror="this.onerror=null;this.src='static/black.png';">
-                          <div id="OpnSense_indicator" class="offline"></div>
-                          <!--
-                          <img src="/static/images/black.png"/>
-                          <div class="offline"></div>
-                          -->
-                          <p>OpnSense</p>
-                        </div>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/portainer.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
                     </div>
-                  </a>
-                    <div id="OpnSense_panel">
-                      <div id="OpnSense_offline" class="lower_panel" style="">
-                        <div class="btn">
-                          <a onclick="vmCmd('OpnSense', 'run')" href="javascript:closeVMPanelByName('OpnSense');">
-                            <img class="img" src="static/start.png">
-                          </a>
-                        </div>                
-                        <div class="btn">
-                        </div>                
-                        <div class="btn">
-                        </div>
-                        <div class="btn">
-                        </div>
-                      </div>
-                    </div>
-                </div>
+                    <p class="app-name">Portainer</p>
+                  </div></a
+                >
               </li>
-
-              <li>
-                <div id="Workspace" class="vm">
-                  <a class="upper_panel_btn" href="javascript:void(0);">
-                    <div class="upper_panel" style="" aria-label="closed">
-                        <div class="image-box">
-                          <img src="static/black.png" onerror="this.onerror=null;this.src='static/black.png';">
-                          <div id="Workspace_indicator" class="offline"></div>
-                          <!--
-                          <img src="/static/images/black.png"/>
-                          <div class="offline"></div>
-                          -->
-                          <p>Workspace</p>
-                        </div>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/opnsense.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
                     </div>
-                  </a>
-                    <div id="Workspace_panel">
-                      <div id="Workspace_offline" class="lower_panel" style="">
-                        <div class="btn">
-                          <a onclick="vmCmd('Workspace', 'run')" href="javascript:closeVMPanelByName('Workspace');">
-                            <img class="img" src="static/start.png">
-                          </a>
-                        </div>                
-                        <div class="btn">
-                        </div>                
-                        <div class="btn">
-                        </div>
-                        <div class="btn">
-                        </div>
-                      </div>
-                    </div>
-                </div>
+                    <p class="app-name">OPNsense</p>
+                  </div></a
+                >
               </li>
-
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/term.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Terminal</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/frigate.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Frigate</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/grafana.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Grafana</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/prometheus.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Prometheus</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/2fauth.jpg"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">2FAuth</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/roundcube.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Roundcube</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/codeserver.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Codeserver</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/overleaf.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Overleaf</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/n8n.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">n8n</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/hoppscotch.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Hoppscotch</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/sqlpad.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">SQLPad</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/cloudbeaver.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">CloudBeaver</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/truenascore.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">TrueNASCORE</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/fileapron.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">FileApron</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/fern.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Fern Workspaces</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/filebrowser.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">FileBrowser</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/gitea.webp"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Gitea</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/git.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Cgit</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/bookmarkerwork.webp"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">BookMarker Lava</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/notepad.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Quick Memos</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/notepad.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Tennote</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/travelitinerary.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Travel Itinerary</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/cyberchef.webp"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">CyberChef</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/hastebin.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">HasteBin</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/onlyoffice.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">OnlyOffice</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/grist.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Grist</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/drawio.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Draw.io</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/mermaid.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Mermaid</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/chili3d.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Chili3D</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/regexr.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Regexr</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/stirling.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Stirling PDF</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/openspeedtest.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">OpenSpeedTest</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/kiwix.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Kiwix</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/openwebui.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Open WebUI</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/stablediffusion.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Stable Diffusion</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/authentik.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Authentik</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/veo.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Veo</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/configuration.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Portfolio</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/configuration.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">School</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/configuration.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Configs</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/settings.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Settings</p>
+                  </div></a
+                >
+              </li>
             </ul>
           </div>
+
+          <!-- ── rdp ── -->
+          <div class="tab-pane scroll" id="apps-rdp">
+            <ul class="apps-grid">
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/guacamole.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Guacamole</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/guacamole.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Guac Android Bliss</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/guacamole.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Guac GPD Code</p>
+                  </div></a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <!-- ── media ── -->
+          <div class="tab-pane scroll" id="apps-media">
+            <ul class="apps-grid">
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/fileapron.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">FileApron</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/airsonic.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Airsonic Refix</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/jellyfin.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Jellyfin</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/youtubedl.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Youtube-dl</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/romm.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Romm</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/calibre.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Calibre</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-offline"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/calibreweb.png"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">Calibre Web</p>
+                  </div></a
+                >
+              </li>
+              <li class="app-wrap">
+                <a class="app-link" href="#"
+                  ><div class="app-inner">
+                    <div class="app-dot bg-online"></div>
+                    <div class="app-icon">
+                      <img
+                        src="static/apps/bookmarker.webp"
+                        onerror="
+                          this.onerror = null;
+                          this.src = 'static/default.png';
+                        "
+                      />
+                    </div>
+                    <p class="app-name">BookMarker</p>
+                  </div></a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <!-- ── settings ── -->
+          <div class="tab-pane" id="apps-settings">
+            <div class="settings-pane">
+              <button class="settings-btn">Reimport Service.Json</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ VMs ══ -->
+      <div class="panel panel-vms">
+        <div class="tabs">
+          <div class="tab-list">
+            <button
+              class="tab-btn active"
+              onclick="switchTab(this, 'vms', 'domains')"
+            >
+              Domains
+            </button>
+            <button
+              class="tab-btn"
+              onclick="switchTab(this, 'vms', 'containers')"
+            >
+              Containers
+            </button>
+          </div>
+          <div class="tab-sep"></div>
+
+          <!-- Domains -->
+          <div class="tab-pane active scroll" id="vms-domains">
+            <div class="vm-list">
+              <div class="vm-card" onclick="toggleVm(this)">
+                <div class="vm-state-bar bg-online"></div>
+                <div class="vm-top">
+                  <div class="vm-preview">
+                    <img
+                      src="static/Docker-Internal.webp"
+                      onerror="
+                        this.onerror = null;
+                        this.src = 'static/black.png';
+                      "
+                      style="width: 100%; height: 100%; object-fit: cover"
+                    />
+                  </div>
+                  <div class="vm-name">Docker</div>
+                </div>
+                <div class="vm-controls closed">
+                  <div class="vm-ctrl" title="Shutdown">
+                    <img
+                      src="static/power.png"
+                      onerror="this.outerHTML = '<span>⏻</span>'"
+                    />
+                  </div>
+                  <div class="vm-ctrl" title="Reboot">
+                    <img
+                      src="static/reboot.png"
+                      onerror="this.outerHTML = '<span>🔄</span>'"
+                    />
+                  </div>
+                  <div class="vm-ctrl" title="Force Shutdown">
+                    <img
+                      src="static/stop.png"
+                      onerror="this.outerHTML = '<span>⏹</span>'"
+                    />
+                  </div>
+                  <div class="vm-ctrl" title="Keyboard">
+                    <img
+                      src="static/keyboard-2.png"
+                      onerror="this.outerHTML = '<span>⌨️</span>'"
+                    />
+                  </div>
+                  <div class="vm-ctrl" title="Terminal">
+                    <img
+                      src="static/terminal.png"
+                      onerror="this.outerHTML = '<span>🖥️</span>'"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="vm-card" onclick="toggleVm(this)">
+                <div class="vm-state-bar bg-offline"></div>
+                <div class="vm-top">
+                  <div class="vm-preview">
+                    <img
+                      src="static/black.png"
+                      style="width: 100%; height: 100%; object-fit: cover"
+                    />
+                  </div>
+                  <div class="vm-name">Android-x86-9.0</div>
+                </div>
+                <div class="vm-controls closed">
+                  <div class="vm-ctrl" title="Start">
+                    <img
+                      src="static/start.png"
+                      onerror="this.outerHTML = '<span>▶</span>'"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="vm-card" onclick="toggleVm(this)">
+                <div class="vm-state-bar bg-offline"></div>
+                <div class="vm-top">
+                  <div class="vm-preview">
+                    <img
+                      src="static/black.png"
+                      style="width: 100%; height: 100%; object-fit: cover"
+                    />
+                  </div>
+                  <div class="vm-name">FreeNas</div>
+                </div>
+                <div class="vm-controls closed">
+                  <div class="vm-ctrl" title="Start">
+                    <img
+                      src="static/start.png"
+                      onerror="this.outerHTML = '<span>▶</span>'"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="vm-card" onclick="toggleVm(this)">
+                <div class="vm-state-bar bg-offline"></div>
+                <div class="vm-top">
+                  <div class="vm-preview">
+                    <img
+                      src="static/black.png"
+                      style="width: 100%; height: 100%; object-fit: cover"
+                    />
+                  </div>
+                  <div class="vm-name">OpnSense</div>
+                </div>
+                <div class="vm-controls closed">
+                  <div class="vm-ctrl" title="Start">
+                    <img
+                      src="static/start.png"
+                      onerror="this.outerHTML = '<span>▶</span>'"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="vm-card" onclick="toggleVm(this)">
+                <div class="vm-state-bar bg-offline"></div>
+                <div class="vm-top">
+                  <div class="vm-preview">
+                    <img
+                      src="static/black.png"
+                      style="width: 100%; height: 100%; object-fit: cover"
+                    />
+                  </div>
+                  <div class="vm-name">Workspace</div>
+                </div>
+                <div class="vm-controls closed">
+                  <div class="vm-ctrl" title="Start">
+                    <img
+                      src="static/start.png"
+                      onerror="this.outerHTML = '<span>▶</span>'"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Containers -->
+          <div class="tab-pane scroll" id="vms-containers">
+            <div style="padding: 8px">
+              <div class="docker-stack">
+                <div class="docker-stack-name">fern-workspaces</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">
+                    fern_workspaces_backend
+                  </div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">fern_mongo_backup</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">fern-onlyoffice</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">fern_mongo</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">fern_redis</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">
+                    fern-onlyoffice-postgresql
+                  </div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">fern_mongo_ui</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">
+                    fern-workspaces-traefik-1
+                  </div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">fern_samba</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">
+                    frontend_fern_workspaces
+                  </div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">fern_realtime_backend</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">
+                  veo_virtual_env_orchestrator
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">veo-backend</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">veo-frontend</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">fileapron</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">fa-backend</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">fa-onlyoffice-oods</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">
+                    fa-onlyoffice-postgresql
+                  </div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">fa-redis</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">fa-frontend</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">rom_emulation</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">romm</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">romm-db</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">romm-nginx</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">frigate</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">frigate</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">overleaf</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">overleaf_sharelatex</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">overleaf_mongo_backup</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">overleaf_mongo</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">overleaf_redis</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">mermaid</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">mermaid-mermaid-1</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">stirling-pdf</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">stirling-pdf</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">unknown</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">portainer</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">2fa</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">2fauth</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">multimedia</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">
+                    multimedia-ytdl_material-1
+                  </div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">airsonic</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">jellyfin</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">airsonic-refix</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">filebrowser</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">filebrowser</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">telemetry</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">grafana</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">prometheus</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">simple-inv-manager</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">simple-inv-backend</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">simple-inv-frontend</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">simple-inv-s3</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">simple-inv-redis</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">simple-inv-postgresql</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">quick_memos</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">quick_notes_backend</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">quick_memos_frontend</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">quick_memos_nginx</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">quick_memos_couchdb</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">workspace_db</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">cloudbeaver</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">workspace_db-sqlpad-1</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">guac-virtmanager</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">virtmanager_guacamole</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">virtmanager_guacd</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">virtmanager_virt</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">email_client_corp</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">roundcube</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">roundcube_db</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">guac_gpd_code</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">
+                    guacamole_compose_gpd_code
+                  </div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">
+                    guacd_compose_gpd_code
+                  </div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">speed-test</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">openspeedtest</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">travel_itinerary</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">travel_itin_frontend</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">travel_itin_nginx</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">
+                    travel_itinerary-couchdb-init-1
+                  </div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">travel_itin_couchdb</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">guac_android</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">
+                    guacamole_compose_android
+                  </div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">guacd_compose_android</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">guac-windows</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">
+                    guacamole_compose_windows
+                  </div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">guacd_compose_windows</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">cad</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">chili3d</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">kiwix</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">kiwix-serve</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">ebooks</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">calibre-web</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">calibre</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">n8n</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">n8n</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">git-server</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">cgit</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">gitea</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">gitea_act_runner</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">bookmarker</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">bookmarker</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">oauth</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">oauth-server-1</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">oauth-worker-1</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">oauth-redis-1</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">oauth-postgresql-1</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">emulation</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">emulatorjs</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">tennote</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">tennote</div>
+                  <button class="docker-ctrl" title="Power off">⏻</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">workspace</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">cyberchef</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">excalidraw</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">drawio</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">hastebin</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">grist</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">regexr</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">postwoman</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">
+                    postwoman-hoppscotch-db-1
+                  </div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">
+                    postwoman-hoppscotch-1
+                  </div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">virt-manager</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">virt-manager-html</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+
+              <div class="docker-stack">
+                <div class="docker-stack-name">onlyoffice_suite</div>
+                <div class="docker-container">
+                  <div class="docker-container-name">filestash_oods</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">onlyoffice-postgresql</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+                <div class="docker-container">
+                  <div class="docker-container-name">filestash</div>
+                  <button class="docker-ctrl" title="Start">▶</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
+    <script>
+      function switchTab(btn, group, name) {
+        const list = btn.closest(".tab-list");
+        list
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const tabs = btn.closest(".tabs");
+        tabs
+          .querySelectorAll(".tab-pane")
+          .forEach((p) => p.classList.remove("active"));
+        const pane = document.getElementById(group + "-" + name);
+        if (pane) pane.classList.add("active");
+      }
+
+      function toggleVm(card) {
+        const top = card.querySelector(".vm-top");
+        const controls = card.querySelector(".vm-controls");
+        const isOpen = !controls.classList.contains("closed");
+        if (isOpen) {
+          controls.classList.add("closed");
+          top.classList.remove("opened");
+        } else {
+          controls.classList.remove("closed");
+          top.classList.add("opened");
+        }
+      }
+    </script>
   </body>
 </html>
-
-<!--<script src="static/socket.io.js.download" crossorigin="anonymous"></script>-->
-<!--<script src="/static/gestures.js"></script>-->
-<!--<script src="static/vm.js.download"></script>-->
-<script src="static/vmopts.js"></script>
